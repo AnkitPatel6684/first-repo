@@ -1,26 +1,54 @@
-# Use the latest 2.1 version of CircleCI pipeline process engine.
-# See: https://circleci.com/docs/configuration-reference
 version: 2.1
 
-# Define a job to be invoked later in a workflow.
-# See: https://circleci.com/docs/configuration-reference/#jobs
+workflows:
+  build_and_deploy:
+    jobs:
+      - build-and-push:
+          context: gcp
+      - deploy-on-private-machine:
+          requires:
+            - build-and-push
+
 jobs:
-  say-hello:
-    # Specify the execution environment. You can specify an image from Docker Hub or use one of our convenience images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/configuration-reference/#executor-job
+  build-and-push:
     docker:
-      - image: cimg/base:stable
-    # Add steps to the job
-    # See: https://circleci.com/docs/configuration-reference/#steps
+      - image: circleci/python:3.8
+
     steps:
       - checkout
-      - run:
-          name: "Say hello"
-          command: "echo Hello, World!"
 
-# Orchestrate jobs using workflows
-# See: https://circleci.com/docs/configuration-reference/#workflows
-workflows:
-  say-hello-workflow:
-    jobs:
-      - say-hello
+      - setup_remote_docker:
+          version: 20.10.7
+
+      - run:
+          name: Build and Push Docker Image
+          command: |
+            docker build -t gcr.io/$GOOGLE_PROJECT_ID/my-image:$CIRCLE_SHA1 .
+            echo $GCLOUD_SERVICE_KEY | base64 --decode --ignore-garbage > ${HOME}/gcloud-service-key.json
+            gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
+            gcloud auth configure-docker
+            docker push gcr.io/$GOOGLE_PROJECT_ID/my-image:$CIRCLE_SHA1
+
+      - store_artifacts:
+          path: ./gcloud-service-key.json
+          destination: gcp
+
+  deploy-on-private-machine:
+    machine:
+      enabled: true
+    steps:
+      - run:
+          name: Install Docker
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y docker.io
+
+      - add_ssh_keys:
+          fingerprints:
+            - "YOUR_PRIVATE_MACHINE_SSH_KEY_FINGERPRINT"
+
+      - run:
+          name: Pull and Deploy Docker Image
+          command: |
+            gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
+            gcloud compute ssh YOUR_PRIVATE_MACHINE_USERNAME@YOUR_PRIVATE_MACHINE_IP --project=$GOOGLE_PROJECT_ID --zone=$GOOGLE_PROJECT_ZONE --command="docker pull gcr.io/$GOOGLE_PROJECT_ID/my-image:$CIRCLE_SHA1 && docker run -d -p 8080:8080 gcr.io/$GOOGLE_PROJECT_ID/my-image:$CIRCLE_SHA1"
