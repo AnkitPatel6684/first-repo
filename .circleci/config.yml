@@ -2,8 +2,8 @@ version: 2.1
 context: gcp_context
 jobs:
   build_and_push:
-    docker:
-      - image: circleci/python:3.8
+    docker: 
+      - image: google/cloud-sdk:latest 
     steps:
       - checkout
 
