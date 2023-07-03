@@ -1,52 +1,41 @@
 version: 2.1
 context: gcp_context
 jobs:
-  build_and_push:
-    docker: 
-      - image: google/cloud-sdk:latest 
-    steps:
-      - checkout
-
-      # Build the Docker image
-      - setup_remote_docker:
-          version: 20.10.7
-      - run:
-          name: Set authorization code environment variable
-          command: |
-            export GCP_AUTH_CODE=4/0AZEOvhUFTb1DQIKJ3hoTTqCUpJLfHcjNVXFw8gtpAd3J-mucjQSi9onoNZr8i9SBOwWLDQ
-      - run:
-          name: Build Docker image
-          command: |
-            docker build -t ohif-viewer:latest .
-            docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD
-            docker push gcr.io/prod-healthsafe/ohif-viewer:latest
-
-  deploy_to_gke:
+  build:
     docker:
-      - image: google/cloud-sdk:latest
+      - image: circleci/python:3.9.4
+    working_directory: ~/app
 
     steps:
       - checkout
 
-      # Configure Google Cloud SDK
+# Install Google Cloud SDK
+      - run:
+          name: Install Google Cloud SDK
+          command: |
+            export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)"
+            echo "deb http://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+            curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+            sudo apt-get update && sudo apt-get install google-cloud-sdk
+
+ # Configure Google Cloud SDK
       - run:
           name: Configure Google Cloud SDK
           command: |
-            echo $SERVICE_ACCOUNT_KEY | base64 --decode --ignore-garbage > ${HOME}/gcp-service-key.json
-            gcloud auth activate-service-account --key-file=${HOME}/gcp-service-key.json
-            gcloud container clusters get-credentials your-cluster-name --zone your-cluster-zone --project your-gcp-project
+            echo $SERVICE_ACCOUNT_KEY | base64 --decode --ignore-garbage > ${HOME}/gcloud-service-key.json
+            gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
+            gcloud config set project $PROJECT_ID
+            gcloud auth configure-docker
 
-      # Deploy to GKE
+# Build and push Docker image
       - run:
-          name: Deploy to GKE
+          name: Build and push Docker image
           command: |
-            kubectl set image deployment/your-deployment-name your-container-name=gcr.io/your-gcp-project/your-image-name:${CIRCLE_SHA1}
+            docker build -t gcr.io/PROJECT_ID/node-app:latest .
+            docker push gcr.io/PROJECT_ID/node-app:latest
 
 workflows:
   version: 2
-  build_and_deploy:
+  build-and-deploy:
     jobs:
-      - build_and_push
-      - deploy_to_gke:
-          requires:
-            - build_and_push
+      - build
