@@ -23,12 +23,12 @@ jobs:
       - run:
           name: Build and Push Docker Image
           command: |
-            docker build -t $PROJECT_URL/node_app -f ./Dockerfile .
-            docker tag $PROJECT_URL/node_app $PROJECT_URL/node_app:latest
+            docker build -t $PROJECT_URL/node-app -f ./Dockerfile .
+            docker tag $PROJECT_URL/node-app $PROJECT_URL/node-app:latest
             cat $GCLOUD_SERVICE_ACCOUNT | docker login -u  _json_key --password-stdin https://us-east4-docker.pkg.dev/prod-healthsafe/healthvault-prod
             gcloud auth activate-service-account --key-file=$GCLOUD_SERVICE_ACCOUNT
             gcloud beta auth configure-docker us-east4-docker.pkg.dev
-            docker push $PROJECT_URL/node_app:latest
+            docker push $PROJECT_URL/node-app:latest
 
   deploy-on-private-machine:
     machine:
