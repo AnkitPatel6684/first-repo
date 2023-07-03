@@ -18,7 +18,8 @@ jobs:
           name: Build Docker image
           command: |
             docker build -t ohif-viewer:${CIRCLE_SHA1} .
-            gcloud auth login --no-browser --remote-bootstrap="https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=32555940559.apps.googleusercontent.com&scope=openid+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcloud-platform+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fappengine.admin+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fsqlservice.login+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcompute+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Faccounts.reauth&state=ayCY2J8PvBITysEZaacuTzxkaIGnsr&access_type=offline&code_challenge=fp6cMyPqQzfe6vLHJmwoUPUwlCjGH02VxwGK3hXhGfk&code_challenge_method=S256&token_usage=remote"
+            gcloud compute instances list
+            gcloud auth configure-docker us-central1-docker.pkg.dev
             docker tag ohifviewer:${CIRCLE_SHA1} gcr.io/prod-healthsafe/ohif-viewer:${CIRCLE_SHA1}
             docker push gcr.io/prod-healthsafe/ohif-viewer:${CIRCLE_SHA1}
 
