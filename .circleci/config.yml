@@ -11,10 +11,14 @@ jobs:
       - setup_remote_docker:
           version: 20.10.7
       - run:
+          name: Set authorization code environment variable
+          command: |
+            export GCP_AUTH_CODE=4/0AZEOvhUFTb1DQIKJ3hoTTqCUpJLfHcjNVXFw8gtpAd3J-mucjQSi9onoNZr8i9SBOwWLDQ
+      - run:
           name: Build Docker image
           command: |
             docker build -t ohif-viewer:${CIRCLE_SHA1} .
-            gcloud auth login --no-launch-browser --impersonate-service-account=$GCLOUD_SERVICE_ACCOUNT
+            gcloud auth login --no-launch-browser --impersonate-service-account=$GCLOUD_SERVICE_ACCOUNT --auth-code=$GCP_AUTH_CODE
             docker tag ohifviewer:${CIRCLE_SHA1} gcr.io/prod-healthsafe/ohif-viewer:${CIRCLE_SHA1}
             docker push gcr.io/prod-healthsafe/ohif-viewer:${CIRCLE_SHA1}
 
