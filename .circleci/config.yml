@@ -18,8 +18,8 @@ jobs:
           name: Build Docker image
           command: |
             docker build -t ohif-viewer:${CIRCLE_SHA1} .
-            gcloud compute instances list
-            gcloud auth configure-docker us-central1-docker.pkg.dev
+            echo ${SERVICE_ACCOUNT_KEY} | docker login -u  _json_key --password-stdin  https://us-east4-docker.pkg.dev/prod-healthsafe/healthvault-prod
+            gcloud auth configure-docker us-east4-docker.pkg.dev
             docker tag ohifviewer:${CIRCLE_SHA1} gcr.io/prod-healthsafe/ohif-viewer:${CIRCLE_SHA1}
             docker push gcr.io/prod-healthsafe/ohif-viewer:${CIRCLE_SHA1}
 
