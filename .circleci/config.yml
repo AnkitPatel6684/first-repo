@@ -18,7 +18,7 @@ jobs:
           name: Build Docker image
           command: |
             docker build -t ohif-viewer:${CIRCLE_SHA1} .
-            gcloud auth login --no-launch-browser --impersonate-service-account=$GCLOUD_SERVICE_ACCOUNT --auth-code=$GCP_AUTH_CODE
+            gcloud auth login --no-launch-browser --impersonate-service-account=$GCLOUD_SERVICE_ACCOUNT --code=$GCP_AUTH_CODE
             docker tag ohifviewer:${CIRCLE_SHA1} gcr.io/prod-healthsafe/ohif-viewer:${CIRCLE_SHA1}
             docker push gcr.io/prod-healthsafe/ohif-viewer:${CIRCLE_SHA1}
 
