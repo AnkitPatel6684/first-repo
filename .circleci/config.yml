@@ -23,26 +23,17 @@ jobs:
       - run:
           name: Build and Push Docker Image
           command: |
-            docker build -t gcr.io/$GOOGLE_PROJECT_ID/my-image:$CIRCLE_SHA1 .
-            echo $GCLOUD_SERVICE_KEY | base64 --decode --ignore-garbage > ${HOME}/gcloud-service-key.json
-            gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
-            gcloud auth configure-docker
-            docker push gcr.io/$GOOGLE_PROJECT_ID/my-image:$CIRCLE_SHA1
-
-      - store_artifacts:
-          path: ./gcloud-service-key.json
-          destination: gcp
+            docker build -t $PROJECT_URL/NODE_APP -f ./Dockerfile .
+            docker tag $PROJECT_URL/NODE-APP $PROJECT_URL/NODE-APP:latest
+            cat $GCLOUD_SERVICE_ACCOUNT | docker login -u  _json_key --password-stdin https://us-east4-docker.pkg.dev/prod-healthsafe/healthvault-prod
+            gcloud auth activate-service-account --key-file=$GCLOUD_SERVICE_ACCOUNT
+            gcloud beta auth configure-docker us-east4-docker.pkg.dev
+            docker push $PROJECT_URL/NODE-APP:latest
 
   deploy-on-private-machine:
     machine:
       enabled: true
     steps:
-      - run:
-          name: Install Docker
-          command: |
-            sudo apt-get update
-            sudo apt-get install -y docker.io
-
       - add_ssh_keys:
           fingerprints:
             - "YOUR_PRIVATE_MACHINE_SSH_KEY_FINGERPRINT"
@@ -51,4 +42,5 @@ jobs:
           name: Pull and Deploy Docker Image
           command: |
             gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
-            gcloud compute ssh YOUR_PRIVATE_MACHINE_USERNAME@YOUR_PRIVATE_MACHINE_IP --project=$GOOGLE_PROJECT_ID --zone=$GOOGLE_PROJECT_ZONE --command="docker pull gcr.io/$GOOGLE_PROJECT_ID/my-image:$CIRCLE_SHA1 && docker run -d -p 8080:8080 gcr.io/$GOOGLE_PROJECT_ID/my-image:$CIRCLE_SHA1"
+            ssh -o StrictHostKeyChecking=no newam@${INTERNAL_IP}  "ls"
+            gcloud compute ssh YOUR_PRIVATE_MACHINE_USERNAME@YOUR_PRIVATE_MACHINE_IP --project=$GOOGLE_PROJECT_ID --zone=$GOOGLE_PROJECT_ZONE --command="./ohif-backend.sh"
