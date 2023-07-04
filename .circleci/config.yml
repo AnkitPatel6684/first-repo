@@ -25,6 +25,9 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
+      - add_ssh_keys:
+          fingerprints:
+            - "2c:a7:54:1c:d1:f2:ad:ce:da:78:c1:55:69:c2:31:3d"
  # Configure Google Cloud SDK
       - run:
           name: Configure Google Cloud SDK
