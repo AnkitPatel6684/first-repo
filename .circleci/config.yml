@@ -16,13 +16,11 @@ jobs:
       - run:
           name: Configure Google Cloud SDK
           command: |
-            docker build -t gcr.io/PROJECT_ID/node-app:latest .
+            docker build -t $REGISTRY_URL/node-app:latest .
             echo ${SERVICE_ACCOUNT_KEY} | base64 --decode --ignore-garbage > ${HOME}/gcloud-service-key.json
             docker login -u _json_key --password-stdin https://us-east4-docker.pkg.dev/prod-healthsafe/healthvault-prod < ${HOME}/gcloud-service-key.json
-            docker push gcr.io/YOUR_PROJECT_ID/YOUR_IMAGE_NAME:${CIRCLE_SHA1}
-            gcloud config set project $PROJECT_ID
             gcloud auth configure-docker us-east4-docker.pkg.dev
-            docker push gcr.io/PROJECT_ID/node-app:latest
+            docker push $REGISTRY_URL/node-app:latest
 
 workflows:
   version: 2
