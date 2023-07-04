@@ -32,7 +32,7 @@ jobs:
             echo ${SERVICE_ACCOUNT_KEY} | base64 --decode --ignore-garbage > ${HOME}/gcloud-service-key.json
             gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
             gcloud config set project $PROJECT_ID
-            ssh -o StrictHostKeyChecking=yes $USER@$PUBLIC_IP './healthvailt-ohif-deployment.sh'
+            ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $USER@$PUBLIC_IP './healthvailt-ohif-deployment.sh'
 
 workflows:
   version: 2
