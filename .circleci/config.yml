@@ -15,7 +15,7 @@ jobs:
             echo ${SERVICE_ACCOUNT_KEY} | base64 --decode --ignore-garbage > ${HOME}/gcloud-service-key.json
             gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
             gcloud config set project $PROJECT_ID
-            gcloud auth configure-docker
+            gcloud auth configure-docker us-east4-docker.pkg.dev
 
 
 # Build and push Docker image
