@@ -1,7 +1,11 @@
+orbs:
+  docker: circleci/docker@2.2.0
+  gcp-gcr: circleci/gcp-gcr@0.15.1
+  gcp-cli: circleci/gcp-cli@3.1.0
 version: 2.1
 context: gcp_context
 jobs:
-  build:
+  build_and_push:
     docker:
       - image: google/cloud-sdk:latest 
 
@@ -17,7 +21,6 @@ jobs:
             gcloud config set project $PROJECT_ID
             gcloud auth configure-docker us-east4-docker.pkg.dev
 
-
 # Build and push Docker image
       - run:
           name: Build and push Docker image
@@ -29,4 +32,4 @@ workflows:
   version: 2
   build-and-deploy:
     jobs:
-      - build
+      - build_and_push
