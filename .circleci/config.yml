@@ -1,7 +1,3 @@
-orbs:
-  docker: circleci/docker@2.2.0
-  gcp-gcr: circleci/gcp-gcr@0.15.1
-  gcp-cli: circleci/gcp-cli@3.1.0
 version: 2.1
 jobs:
   login_and_push:
@@ -21,10 +17,34 @@ jobs:
             gcloud auth configure-docker us-east4-docker.pkg.dev
             docker push $REGISTRY_URL/node-app:latest
 
+  deploy_backend:
+    docker:
+      - image: google/cloud-sdk:latest
+      - image: circleci/python:3.9
+
+    steps:
+      - checkout
+      - setup_remote_docker
+ # Configure Google Cloud SDK
+      - run:
+          name: Configure Google Cloud SDK
+          command: |
+            echo ${SERVICE_ACCOUNT_KEY} | base64 --decode --ignore-garbage > ${HOME}/gcloud-service-key.json
+            gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
+            gcloud config set project $PROJECT_ID
+
+      - run:
+          name: ssh-into-machine
+          command: |
+            ssh -o StrictHostKeyChecking=no sarvagnya_narayan@35.244.39.241 './healthvailt-ohif-deployment.sh'
+
 workflows:
   version: 2
   build-and-deploy:
     jobs: 
       - login_and_push
+      - deploy_backend:
+          requires:
+            - login_and_push
 
         
