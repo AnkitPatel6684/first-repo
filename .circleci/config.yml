@@ -21,7 +21,6 @@ jobs:
       - image: google/cloud-sdk:latest  
 
     steps:
-      - checkout
       - setup_remote_docker
  # Configure Google Cloud SDK
       - run:
