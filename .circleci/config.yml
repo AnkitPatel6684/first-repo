@@ -14,7 +14,7 @@ jobs:
       - run:
           name: Build Docker Image 
           command: |
-            docker build -t $REGISTRY_URL/node-app:latest .
+            docker build -t $REGISTRY_URL/node-app .
 
   login_and_push:
     docker:
@@ -30,6 +30,7 @@ jobs:
             echo ${SERVICE_ACCOUNT_KEY} | base64 --decode --ignore-garbage > ${HOME}/gcloud-service-key.json
             docker login -u _json_key --password-stdin https://us-east4-docker.pkg.dev/prod-healthsafe/healthvault-prod < ${HOME}/gcloud-service-key.json
             gcloud auth configure-docker us-east4-docker.pkg.dev
+            docker tag $REGISTRY_URL/node-app $REGISTRY_URL/node-app:latest
             docker push $REGISTRY_URL/node-app:latest
 
 workflows:
