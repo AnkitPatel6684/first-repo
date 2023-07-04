@@ -3,7 +3,6 @@ orbs:
   gcp-gcr: circleci/gcp-gcr@0.15.1
   gcp-cli: circleci/gcp-cli@3.1.0
 version: 2.1
-context: gcp_context
 jobs:
   login_and_push:
     docker:
