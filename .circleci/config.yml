@@ -17,6 +17,7 @@ jobs:
             gcloud config set project $PROJECT_ID
             gcloud auth configure-docker
 
+
 # Build and push Docker image
       - run:
           name: Build and push Docker image
