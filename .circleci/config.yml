@@ -5,40 +5,27 @@ orbs:
 version: 2.1
 context: gcp_context
 jobs:
-  build:
-    docker:
-      - image: circleci/python:3.9
-    steps:
-      - checkout
-      - setup_remote_docker
-      - run:
-          name: Build Docker Image 
-          command: |
-            docker build -t $REGISTRY_URL/node-app .
-
   login_and_push:
     docker:
       - image: google/cloud-sdk:latest  
 
     steps:
+      - checkout
       - setup_remote_docker
  # Configure Google Cloud SDK
       - run:
           name: Configure Google Cloud SDK
           command: |
+            docker build -t $REGISTRY_URL/node-app:latest .
             echo ${SERVICE_ACCOUNT_KEY} | base64 --decode --ignore-garbage > ${HOME}/gcloud-service-key.json
             docker login -u _json_key --password-stdin https://us-east4-docker.pkg.dev/prod-healthsafe/healthvault-prod < ${HOME}/gcloud-service-key.json
             gcloud auth configure-docker us-east4-docker.pkg.dev
-            docker tag $REGISTRY_URL/node-app $REGISTRY_URL/node-app:latest
             docker push $REGISTRY_URL/node-app:latest
 
 workflows:
   version: 2
   build-and-deploy:
-    jobs:
-      - build  
-      - login_and_push:
-          requires:
-            - build
+    jobs: 
+      - login_and_push
 
         
