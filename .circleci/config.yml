@@ -25,9 +25,6 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-      - add_ssh_keys:
-          fingerprints:
-            - "2c:a7:54:1c:d1:f2:ad:ce:da:78:c1:55:69:c2:31:3d"
  # Configure Google Cloud SDK
       - run:
           name: Configure Google Cloud SDK
@@ -39,7 +36,7 @@ jobs:
       - run:
           name: ssh-into-machine
           command: |
-            ssh -o StrictHostKeyChecking=no sarvagnya_narayan@35.244.39.241 './healthvailt-ohif-deployment.sh'
+            ssh sarvagnya_narayan@35.244.39.241 './healthvailt-ohif-deployment.sh'
 
 workflows:
   version: 2
