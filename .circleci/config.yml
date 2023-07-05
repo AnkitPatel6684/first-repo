@@ -42,5 +42,9 @@ workflows:
       - deploy_backend:
           requires:
             - login_and_push
+          filters:
+           branches:
+            only:
+              - circleci-editor/165/circleci-project-setup
 
         
