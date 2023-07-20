@@ -51,13 +51,13 @@ workflows:
           tag: 'latest,0.1$CIRCLE_BUILD_NUM'
           filters:
             branches:
-              only: feature/LoadTestEnhancement
+              only: circleci-editor/923/circleci-project-setup
       - deploy-servicebackend-load:
           requires:
             - aws-ecr/build-and-push-image
           filters:
             branches:
-              only: feature/LoadTestEnhancement
+              only: circleci-editor/923/circleci-project-setup
                          
       - aws-ecr/build-and-push-image:
           name: event-backend-image
@@ -74,14 +74,14 @@ workflows:
           tag: 'latest1,0.1$CIRCLE_BUILD_NUM'
           filters:
             branches:
-              only: feature/LoadTestEnhancement
+              only: circleci-editor/923/circleci-project-setup
       - deploy-eventbackend-load:
           requires:
             - event-backend-image
             - deploy-servicebackend-load
           filters:
             branches:
-              only: feature/LoadTestEnhancement
+              only: circleci-editor/923/circleci-project-setup
 
       - aws-ecr/build-and-push-image:
           name: user-backend-image
@@ -98,12 +98,12 @@ workflows:
           tag: 'latest2,0.1$CIRCLE_BUILD_NUM'
           filters:
             branches:
-              only: feature/LoadTestEnhancement
+              only: circleci-editor/923/circleci-project-setup
       - deploy-userbackend-load:
           requires:
             - user-backend-image
             - deploy-eventbackend-load
           filters:
             branches:
-              only: feature/LoadTestEnhancement
+              only: circleci-editor/923/circleci-project-setup
 
