@@ -13,7 +13,7 @@ jobs:
     steps:
       - run:
           name: deploy-userbackend
-          command: ssh -o StrictHostKeyChecking=no ec2-user@139.16.67.74 './node-userbackend-ssh.sh';
+          command: ssh -o StrictHostKeyChecking=no ec2-user@13.49.0.245 './node-userbackend-ssh.sh';
         
 
   deploy-eventbackend-load:
@@ -22,7 +22,7 @@ jobs:
     steps:
       - run:
           name: deploy-eventbackend
-          command: ssh -o StrictHostKeyChecking=no ec2-user@139.16.67.74 './node-eventbackend-ssh.sh';
+          command: ssh -o StrictHostKeyChecking=no ec2-user@13.49.0.245 './node-eventbackend-ssh.sh';
 
 
   deploy-servicebackend-load:
@@ -31,15 +31,14 @@ jobs:
     steps:
       - run:
           name: deploy-servicebackend
-          command: ssh -o StrictHostKeyChecking=no ec2-user@139.16.67.74 './node-servicebackend-ssh.sh';
+          command: ssh -o StrictHostKeyChecking=no ec2-user@13.49.0.245 './node-servicebackend-ssh.sh';
   
 
 
 
 version: 2.1
-jobs:
- workflows:
-  build_and_deploy-serviceload:
+workflows:
+  build_and_deploy_sequentially:
     jobs:
       - aws-ecr/build-and-push-image:
           account-url: AWS_ECR_URL_DEV
@@ -63,10 +62,8 @@ jobs:
             branches:
               only: feature/LoadTestEnhancement
                          
-
-  build_and_deploy-eventload:
-    jobs:
       - aws-ecr/build-and-push-image:
+          name: event-backend-image
           account-url: AWS_ECR_URL_DEV
           aws-access-key-id: AWS_DEV_ACCESS_KEY
           aws-secret-access-key: AWS_DEV_SECRET_KEY
@@ -83,15 +80,14 @@ jobs:
               only: feature/LoadTestEnhancement
       - deploy-eventbackend-load:
           requires:
-            - aws-ecr/build-and-push-image
+            - event-backend-image
+            - deploy-servicebackend-load
           filters:
             branches:
               only: feature/LoadTestEnhancement
-              
-              
-  build_and_deploy-userload:
-    jobs:
+
       - aws-ecr/build-and-push-image:
+          name: user-backend-image
           account-url: AWS_ECR_URL_DEV
           aws-access-key-id: AWS_DEV_ACCESS_KEY
           aws-secret-access-key: AWS_DEV_SECRET_KEY
@@ -108,18 +104,9 @@ jobs:
               only: feature/LoadTestEnhancement
       - deploy-userbackend-load:
           requires:
-            - aws-ecr/build-and-push-image
+            - user-backend-image
+            - deploy-eventbackend-load
           filters:
             branches:
               only: feature/LoadTestEnhancement
 
- workflows:
-  build_and_deploy_Sequentially:
-    jobs:
-      - build_and_deploy-serviceload
-      - build_and_deploy-eventload:
-          requires:
-            - build_and_deploy-serviceload
-      - build_and_deploy-userload:
-          requires:
-            - build_and_deploy-eventload
