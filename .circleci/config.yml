@@ -32,7 +32,6 @@ jobs:
           name: deploy-servicebackend
           command: ssh -o StrictHostKeyChecking=no ec2-user@13.49.0.245 './third-deployment.sh';
   
-
 version: 2.1
 workflows:
   build_and_deploy_sequentially:
