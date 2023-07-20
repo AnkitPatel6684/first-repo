@@ -75,6 +75,8 @@ workflows:
           filters:
             branches:
               only: circleci-editor/923/circleci-project-setup
+          requires:
+            - aws-ecr/build-and-push-image
       - deploy-eventbackend-load:
           requires:
             - event-backend-image
@@ -99,6 +101,8 @@ workflows:
           filters:
             branches:
               only: circleci-editor/923/circleci-project-setup
+          requires:
+            - event-backend-image
       - deploy-userbackend-load:
           requires:
             - user-backend-image
