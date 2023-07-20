@@ -13,7 +13,7 @@ jobs:
     steps:
       - run:
           name: deploy-userbackend
-          command: ssh -o StrictHostKeyChecking=no ec2-user@13.49.0.245 './node-userbackend-ssh.sh';
+          command: ssh -o StrictHostKeyChecking=no ec2-user@13.49.0.245 './first-deployment.sh';
         
 
   deploy-eventbackend-load:
@@ -22,7 +22,7 @@ jobs:
     steps:
       - run:
           name: deploy-eventbackend
-          command: ssh -o StrictHostKeyChecking=no ec2-user@13.49.0.245 './node-eventbackend-ssh.sh';
+          command: ssh -o StrictHostKeyChecking=no ec2-user@13.49.0.245 './second-deployment.sh';
 
 
   deploy-servicebackend-load:
@@ -31,10 +31,8 @@ jobs:
     steps:
       - run:
           name: deploy-servicebackend
-          command: ssh -o StrictHostKeyChecking=no ec2-user@13.49.0.245 './node-servicebackend-ssh.sh';
+          command: ssh -o StrictHostKeyChecking=no ec2-user@13.49.0.245 './third-deployment.sh';
   
-
-
 
 version: 2.1
 workflows:
@@ -74,7 +72,7 @@ workflows:
           region: AWS_REGION_load
           repo: loadtesting-event-backend
           skip-when-tags-exist: false
-          tag: 'latest,0.1$CIRCLE_BUILD_NUM'
+          tag: 'latest1,0.1$CIRCLE_BUILD_NUM'
           filters:
             branches:
               only: feature/LoadTestEnhancement
@@ -98,7 +96,7 @@ workflows:
           region: AWS_REGION_load
           repo: loadtesting-user-backend
           skip-when-tags-exist: false
-          tag: 'latest,0.1$CIRCLE_BUILD_NUM'
+          tag: 'latest2,0.1$CIRCLE_BUILD_NUM'
           filters:
             branches:
               only: feature/LoadTestEnhancement
