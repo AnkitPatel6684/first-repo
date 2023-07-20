@@ -42,7 +42,7 @@ workflows:
           aws-access-key-id: AWS_DEV_ACCESS_KEY
           aws-secret-access-key: AWS_DEV_SECRET_KEY
           create-repo: true
-          dockerfile: Env/Load/ServiceDockerfile
+          dockerfile: Dockerfile
           no-output-timeout: 20m
           path: .
           region: AWS_REGION_load
@@ -65,7 +65,7 @@ workflows:
           aws-access-key-id: AWS_DEV_ACCESS_KEY
           aws-secret-access-key: AWS_DEV_SECRET_KEY
           create-repo: true
-          dockerfile: Env/Load/EventDockerfile
+          dockerfile: Dockerfile
           no-output-timeout: 20m
           path: .
           region: AWS_REGION_load
@@ -89,7 +89,7 @@ workflows:
           aws-access-key-id: AWS_DEV_ACCESS_KEY
           aws-secret-access-key: AWS_DEV_SECRET_KEY
           create-repo: true
-          dockerfile: Env/Load/UserDockerfile
+          dockerfile: Dockerfile
           no-output-timeout: 20m
           path: .
           region: AWS_REGION_load
