@@ -37,7 +37,8 @@ jobs:
 
 
 version: 2.1
-workflows:
+jobs:
+ workflows:
   build_and_deploy-serviceload:
     jobs:
       - aws-ecr/build-and-push-image:
@@ -80,12 +81,9 @@ workflows:
           filters:
             branches:
               only: feature/LoadTestEnhancement
-          requires:
-            - deploy-servicebackend-load
       - deploy-eventbackend-load:
           requires:
             - aws-ecr/build-and-push-image
-            - deploy-servicebackend-load
           filters:
             branches:
               only: feature/LoadTestEnhancement
@@ -108,12 +106,20 @@ workflows:
           filters:
             branches:
               only: feature/LoadTestEnhancement
-          requires:
-            - deploy-eventbackend-load
       - deploy-userbackend-load:
           requires:
             - aws-ecr/build-and-push-image
-            - deploy-eventbackend-load
           filters:
             branches:
               only: feature/LoadTestEnhancement
+
+ workflows:
+  build_and_deploy_Sequentially:
+    jobs:
+      - build_and_deploy-serviceload
+      - build_and_deploy-eventload:
+          requires:
+            - build_and_deploy-serviceload
+      - build_and_deploy-userload:
+          requires:
+            - build_and_deploy-eventload
