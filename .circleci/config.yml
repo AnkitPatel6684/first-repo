@@ -1,50 +1,115 @@
-version: 2.1
+orbs:
+  aws-eks: circleci/aws-eks@1.1.0
+  aws-ecr: circleci/aws-ecr@7.0.0
+  aws-cli: circleci/aws-cli@2.0.0
+  node: circleci/node@2.0.2
+
+
+
 jobs:
-  login_and_push:
-    docker:
-      - image: google/cloud-sdk:latest  
-
+  deploy-userbackend-load:
+    machine:
+      enabled: true
     steps:
-      - checkout
-      - setup_remote_docker
- # Configure Google Cloud SDK
       - run:
-          name: Configure Google Cloud SDK
-          command: |
-            docker build -t $REGISTRY_URL/node-app:latest .
-            echo ${SERVICE_ACCOUNT_KEY} | base64 --decode --ignore-garbage > ${HOME}/gcloud-service-key.json
-            docker login -u _json_key --password-stdin https://us-east4-docker.pkg.dev/prod-healthsafe/healthvault-prod < ${HOME}/gcloud-service-key.json
-            gcloud auth configure-docker us-east4-docker.pkg.dev
-            docker push $REGISTRY_URL/node-app:latest
-
-  deploy_backend:
-    docker:
-      - image: google/cloud-sdk:latest
-      - image: circleci/python:3.9
-
-    steps:
-      - checkout
-      - setup_remote_docker
- # Configure Google Cloud SDK
-      - run:
-          name: Deploying_on_the_Machine 
-          command: |
-            echo ${SERVICE_ACCOUNT_KEY} | base64 --decode --ignore-garbage > ${HOME}/gcloud-service-key.json
-            gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
-            gcloud config set project $PROJECT_ID
-            gcloud compute ssh $INSTANCE_NAME --quiet --project $PROJECT_ID --zone $ZONE --strict-host-key-checking=no --command "./healthvailt-ohif-deployment.sh"
-
-workflows:
-  version: 2
-  build-and-deploy:
-    jobs: 
-      - login_and_push
-      - deploy_backend:
-          requires:
-            - login_and_push
-          filters:
-           branches:
-            only:
-              - circleci-editor/165/circleci-project-setup
-
+          name: deploy-userbackend
+          command: ssh -o StrictHostKeyChecking=no ec2-user@139.16.67.74 './node-userbackend-ssh.sh';
         
+
+  deploy-eventbackend-load:
+    machine:
+      enabled: true
+    steps:
+      - run:
+          name: deploy-eventbackend
+          command: ssh -o StrictHostKeyChecking=no ec2-user@139.16.67.74 './node-eventbackend-ssh.sh';
+
+
+  deploy-servicebackend-load:
+    machine:
+      enabled: true
+    steps:
+      - run:
+          name: deploy-servicebackend
+          command: ssh -o StrictHostKeyChecking=no ec2-user@139.16.67.74 './node-servicebackend-ssh.sh';
+  
+
+
+
+version: 2.1
+workflows:
+  build_and_deploy-serviceload:
+    jobs:
+      - aws-ecr/build-and-push-image:
+          account-url: AWS_ECR_URL_DEV
+          aws-access-key-id: AWS_DEV_ACCESS_KEY
+          aws-secret-access-key: AWS_DEV_SECRET_KEY
+          create-repo: true
+          dockerfile: Env/Load/ServiceDockerfile
+          no-output-timeout: 20m
+          path: .
+          region: AWS_REGION_load
+          repo: loadtesting-service-backend
+          skip-when-tags-exist: false
+          tag: 'latest,0.1$CIRCLE_BUILD_NUM'
+          filters:
+            branches:
+              only: feature/LoadTestEnhancement
+      - deploy-servicebackend-load:
+          requires:
+            - aws-ecr/build-and-push-image
+          filters:
+            branches:
+              only: feature/LoadTestEnhancement
+                         
+
+  build_and_deploy-eventload:
+    jobs:
+      - aws-ecr/build-and-push-image:
+          account-url: AWS_ECR_URL_DEV
+          aws-access-key-id: AWS_DEV_ACCESS_KEY
+          aws-secret-access-key: AWS_DEV_SECRET_KEY
+          create-repo: true
+          dockerfile: Env/Load/EventDockerfile
+          no-output-timeout: 20m
+          path: .
+          region: AWS_REGION_load
+          repo: loadtesting-event-backend
+          skip-when-tags-exist: false
+          tag: 'latest,0.1$CIRCLE_BUILD_NUM'
+          filters:
+            branches:
+              only: feature/LoadTestEnhancement
+      - deploy-eventbackend-load:
+          requires:
+            - aws-ecr/build-and-push-image
+            - build_and_deploy-serviceload
+          filters:
+            branches:
+              only: feature/LoadTestEnhancement
+              
+              
+  build_and_deploy-userload:
+    jobs:
+      - aws-ecr/build-and-push-image:
+          account-url: AWS_ECR_URL_DEV
+          aws-access-key-id: AWS_DEV_ACCESS_KEY
+          aws-secret-access-key: AWS_DEV_SECRET_KEY
+          create-repo: true
+          dockerfile: Env/Load/UserDockerfile
+          no-output-timeout: 20m
+          path: .
+          region: AWS_REGION_load
+          repo: loadtesting-user-backend
+          skip-when-tags-exist: false
+          tag: 'latest,0.1$CIRCLE_BUILD_NUM'
+          filters:
+            branches:
+              only: feature/LoadTestEnhancement
+      - deploy-userbackend-load:
+          requires:
+            - aws-ecr/build-and-push-image
+            - build_and_deploy-eventload
+          filters:
+            branches:
+              only: feature/LoadTestEnhancement
