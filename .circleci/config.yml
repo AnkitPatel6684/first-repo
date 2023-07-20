@@ -81,10 +81,11 @@ workflows:
             branches:
               only: feature/LoadTestEnhancement
           requires:
-            - build_and_deploy-serviceload
+            - deploy-servicebackend-load
       - deploy-eventbackend-load:
           requires:
             - aws-ecr/build-and-push-image
+            - deploy-servicebackend-load
           filters:
             branches:
               only: feature/LoadTestEnhancement
@@ -108,11 +109,11 @@ workflows:
             branches:
               only: feature/LoadTestEnhancement
           requires:
-            - build_and_deploy-eventload
+            - deploy-eventbackend-load
       - deploy-userbackend-load:
           requires:
             - aws-ecr/build-and-push-image
-            - build_and_deploy-eventload
+            - deploy-eventbackend-load
           filters:
             branches:
               only: feature/LoadTestEnhancement
