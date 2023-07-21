@@ -57,17 +57,10 @@ workflows:
            filters:
              branches:
                only: circleci-editor/923/circleci-project-setup
-      - service-deployment-approval-Usernode:
-           type: approval
-           filters:
-             branches:
-               only: circleci-editor/923/circleci-project-setup
-           requires:
-              - user-backend-image
       - deploy-userbackend-load:
           requires:
             - user-backend-image
-            - service-deployment-approval-Usernode
+            - image-deployment-approval-Usernode
           filters:
             branches:
               only: circleci-editor/923/circleci-project-setup
@@ -97,17 +90,10 @@ workflows:
            filters:
              branches:
                only: circleci-editor/923/circleci-project-setup
-      - service-deployment-approval-Eventnode:
-           type: approval
-           filters:
-             branches:
-               only: circleci-editor/923/circleci-project-setup
-           requires:
-            - event-backend-image
       - deploy-eventbackend-load:
           requires:
             - event-backend-image
-            - service-deployment-approval-Eventnode
+            - image-deployment-approval-Eventnode
           filters:
             branches:
               only: circleci-editor/923/circleci-project-setup
@@ -137,17 +123,10 @@ workflows:
            filters:
              branches:
                only: circleci-editor/923/circleci-project-setup
-      - service-deployment-approval-Servicenode:
-           type: approval
-           filters:
-             branches:
-               only: circleci-editor/923/circleci-project-setup
-           requires:
-            - service-backend-image
       - deploy-servicebackend-load:
           requires:
             - service-backend-image
-            - service-deployment-approval-Servicenode
+            - image-deployment-approval-Servicenode
           filters:
             branches:
               only: circleci-editor/923/circleci-project-setup
