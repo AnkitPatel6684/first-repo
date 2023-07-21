@@ -34,11 +34,6 @@ workflows:
 
   build_and_deploy_user_node:
     jobs:
-      - image-deployment-approval-Usernode:
-           type: approval
-           filters:
-             branches:
-               only: circleci-editor/923/circleci-project-setup
       - aws-ecr/build-and-push-image:
           name: user-backend-image
           account-url: AWS_ECR_URL_DEV
@@ -69,14 +64,14 @@ workflows:
            filters:
              branches:
                only: circleci-editor/923/circleci-project-setup
-
-  build_and_deploy_event_node:
-    jobs:
-      - image-deployment-approval-Eventnode:
+      - image-deployment-approval-Usernode:
            type: approval
            filters:
              branches:
-               only: circleci-editor/923/circleci-project-setup                    
+               only: circleci-editor/923/circleci-project-setup
+
+  build_and_deploy_event_node:
+    jobs:                   
       - aws-ecr/build-and-push-image:
           name: event-backend-image
           account-url: AWS_ECR_URL_DEV
@@ -107,14 +102,14 @@ workflows:
            filters:
              branches:
                only: circleci-editor/923/circleci-project-setup
-                    
-  build_and_deploy_service_node:
-    jobs:
-      - image-deployment-approval-Servicenode:
+      - image-deployment-approval-Eventnode:
            type: approval
            filters:
              branches:
-               only: circleci-editor/923/circleci-project-setup
+               only: circleci-editor/923/circleci-project-setup 
+                    
+  build_and_deploy_service_node:
+    jobs:
       - aws-ecr/build-and-push-image:
           name: service-backend-image
           account-url: AWS_ECR_URL_DEV
@@ -141,6 +136,11 @@ workflows:
             branches:
               only: circleci-editor/923/circleci-project-setup
       - service-deployment-approval-Servicenode:
+           type: approval
+           filters:
+             branches:
+               only: circleci-editor/923/circleci-project-setup
+      - image-deployment-approval-Servicenode:
            type: approval
            filters:
              branches:
