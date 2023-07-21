@@ -5,7 +5,6 @@ orbs:
   node: circleci/node@2.0.2
 
 jobs:
-
   deploy-servicebackend-load:
     machine:
       enabled: true
@@ -13,7 +12,7 @@ jobs:
       - run:
           name: deploy-servicebackend
           command: ssh ec2-user@16.16.28.38 './third-deployment.sh';
-
+  
   deploy-eventbackend-load:
     machine:
       enabled: true
@@ -21,7 +20,7 @@ jobs:
       - run:
           name: deploy-eventbackend
           command: ssh ec2-user@16.16.28.38 './second-deployment.sh';
-
+                  
   deploy-userbackend-load:
     machine:
       enabled: true
@@ -30,14 +29,16 @@ jobs:
           name: deploy-userbackend
           command: ssh ec2-user@16.16.28.38 './first-deployment.sh';
       
-  
 version: 2.1
 workflows:
   build_and_deploy_sequentially:
     jobs:
-
+      - image-deployment-approval-Servicenode:
+           type: approval
+           filters:
+             branches:
+               only: circleci-editor/923/circleci-project-setup
       - aws-ecr/build-and-push-image:
-          name: Service-backend-image
           account-url: AWS_ECR_URL_DEV
           aws-access-key-id: AWS_DEV_ACCESS_KEY
           aws-secret-access-key: AWS_DEV_SECRET_KEY
@@ -52,17 +53,29 @@ workflows:
           filters:
             branches:
               only: circleci-editor/923/circleci-project-setup
-
+          requires:
+            - image-deployment-approval-Servicenode
+      - service-deployment-approval-Servicenode:
+           type: approval
+           filters:
+             branches:
+               only: circleci-editor/923/circleci-project-setup
       - deploy-servicebackend-load:
           requires:
-            - Service-backend-image
+            - aws-ecr/build-and-push-image
+            - service-deployment-approval-Servicenode
           filters:
             branches:
               only: circleci-editor/923/circleci-project-setup
 
-                 
+
+      - image-deployment-approval-Eventnode:
+           type: approval
+           filters:
+             branches:
+               only: circleci-editor/923/circleci-project-setup                    
       - aws-ecr/build-and-push-image:
-          name: Event-backend-image
+          name: event-backend-image
           account-url: AWS_ECR_URL_DEV
           aws-access-key-id: AWS_DEV_ACCESS_KEY
           aws-secret-access-key: AWS_DEV_SECRET_KEY
@@ -77,15 +90,29 @@ workflows:
           filters:
             branches:
               only: circleci-editor/923/circleci-project-setup
+          requires:
+            - aws-ecr/build-and-push-image
+            - image-deployment-approval-Eventnode
+      - service-deployment-approval-Eventnode:
+           type: approval
+           filters:
+             branches:
+               only: circleci-editor/923/circleci-project-setup
       - deploy-eventbackend-load:
           requires:
-            - Event-backend-image
+            - event-backend-image
+            - service-deployment-approval-Eventnode
           filters:
             branches:
               only: circleci-editor/923/circleci-project-setup
 
+      - image-deployment-approval-Usernode:
+           type: approval
+           filters:
+             branches:
+               only: circleci-editor/923/circleci-project-setup
       - aws-ecr/build-and-push-image:
-          name: User-backend-image
+          name: user-backend-image
           account-url: AWS_ECR_URL_DEV
           aws-access-key-id: AWS_DEV_ACCESS_KEY
           aws-secret-access-key: AWS_DEV_SECRET_KEY
@@ -100,10 +127,18 @@ workflows:
           filters:
             branches:
               only: circleci-editor/923/circleci-project-setup
-
+          requires:
+            - event-backend-image
+            - image-deployment-approval-Usernode
+      - service-deployment-approval-Usernode:
+           type: approval
+           filters:
+             branches:
+               only: circleci-editor/923/circleci-project-setup
       - deploy-userbackend-load:
           requires:
-            - User-backend-image
+            - user-backend-image
+            - service-deployment-approval-Usernode
           filters:
             branches:
               only: circleci-editor/923/circleci-project-setup
