@@ -34,11 +34,6 @@ workflows:
 
   build_and_deploy_user_node:
     jobs:
-      - service-deployment-approval-Usernode:
-           type: approval
-           filters:
-             branches:
-               only: circleci-editor/923/circleci-project-setup
       - image-deployment-approval-Usernode:
            type: approval
            filters:
@@ -69,14 +64,14 @@ workflows:
           filters:
             branches:
               only: circleci-editor/923/circleci-project-setup
-
-  build_and_deploy_event_node:
-    jobs:
-      - service-deployment-approval-Eventnode:
+      - service-deployment-approval-Usernode:
            type: approval
            filters:
              branches:
                only: circleci-editor/923/circleci-project-setup
+
+  build_and_deploy_event_node:
+    jobs:
       - image-deployment-approval-Eventnode:
            type: approval
            filters:
@@ -107,14 +102,14 @@ workflows:
           filters:
             branches:
               only: circleci-editor/923/circleci-project-setup
-                    
-  build_and_deploy_service_node:
-    jobs:
-      - service-deployment-approval-Servicenode:
+      - service-deployment-approval-Eventnode:
            type: approval
            filters:
              branches:
                only: circleci-editor/923/circleci-project-setup
+                    
+  build_and_deploy_service_node:
+    jobs:
       - image-deployment-approval-Servicenode:
            type: approval
            filters:
@@ -145,4 +140,9 @@ workflows:
           filters:
             branches:
               only: circleci-editor/923/circleci-project-setup
+      - service-deployment-approval-Servicenode:
+           type: approval
+           filters:
+             branches:
+               only: circleci-editor/923/circleci-project-setup
               
