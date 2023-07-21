@@ -62,6 +62,8 @@ workflows:
            filters:
              branches:
                only: circleci-editor/923/circleci-project-setup
+           requires:
+              - user-backend-image
       - deploy-userbackend-load:
           requires:
             - user-backend-image
