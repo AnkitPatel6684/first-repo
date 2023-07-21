@@ -55,7 +55,7 @@ workflows:
       - deploy-userbackend-load:
           requires:
             - user-backend-image
-            - service-deployment-approval-Usernode
+            - image-deployment-approval-Usernode
           filters:
             branches:
               only: circleci-editor/923/circleci-project-setup
