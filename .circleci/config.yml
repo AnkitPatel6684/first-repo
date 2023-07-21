@@ -34,18 +34,6 @@ workflows:
 
   build_and_deploy_user_node:
     jobs:
-      - service-deployment-approval-Usernode:
-           type: approval
-           filters:
-             branches:
-               only: circleci-editor/923/circleci-project-setup
-      - deploy-userbackend-load:
-          requires:
-            - user-backend-image
-            - service-deployment-approval-Usernode
-          filters:
-            branches:
-              only: circleci-editor/923/circleci-project-setup
       - image-deployment-approval-Usernode:
            type: approval
            filters:
@@ -69,22 +57,21 @@ workflows:
               only: circleci-editor/923/circleci-project-setup
           requires:
             - image-deployment-approval-Usernode
-
-
-  build_and_deploy_event_node:
-    jobs:
-      - service-deployment-approval-Eventnode:
+      - service-deployment-approval-Usernode:
            type: approval
            filters:
              branches:
                only: circleci-editor/923/circleci-project-setup
-      - deploy-eventbackend-load:
+      - deploy-userbackend-load:
           requires:
-            - event-backend-image
-            - service-deployment-approval-Eventnode
+            - user-backend-image
+            - service-deployment-approval-Usernode
           filters:
             branches:
               only: circleci-editor/923/circleci-project-setup
+
+  build_and_deploy_event_node:
+    jobs:
       - image-deployment-approval-Eventnode:
            type: approval
            filters:
@@ -108,22 +95,21 @@ workflows:
               only: circleci-editor/923/circleci-project-setup
           requires:
             - image-deployment-approval-Eventnode
-
-                    
-  build_and_deploy_service_node:
-    jobs:
-      - service-deployment-approval-Servicenode:
+      - service-deployment-approval-Eventnode:
            type: approval
            filters:
              branches:
                only: circleci-editor/923/circleci-project-setup
-      - deploy-servicebackend-load:
+      - deploy-eventbackend-load:
           requires:
-            - service-backend-image
-            - service-deployment-approval-Servicenode
+            - event-backend-image
+            - service-deployment-approval-Eventnode
           filters:
             branches:
               only: circleci-editor/923/circleci-project-setup
+                    
+  build_and_deploy_service_node:
+    jobs:
       - image-deployment-approval-Servicenode:
            type: approval
            filters:
@@ -147,5 +133,16 @@ workflows:
               only: circleci-editor/923/circleci-project-setup
           requires:
             - image-deployment-approval-Servicenode
-
+      - service-deployment-approval-Servicenode:
+           type: approval
+           filters:
+             branches:
+               only: circleci-editor/923/circleci-project-setup
+      - deploy-servicebackend-load:
+          requires:
+            - service-backend-image
+            - service-deployment-approval-Servicenode
+          filters:
+            branches:
+              only: circleci-editor/923/circleci-project-setup
               
