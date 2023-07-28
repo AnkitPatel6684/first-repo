@@ -7,13 +7,29 @@ orbs:
 
 
 jobs:
+
+  decide-workflow:
+    machine:
+      enabled: true
+    steps:
+      - run:
+          name: Decide-Workflow
+          command: |
+            if [ "$RUN_WORKFLOW" = "service-load" ]; then
+              circleci local execute -c .circleci/config.yml build_and_deploy-serviceload
+            elif [ "$RUN_WORKFLOW" = "event-load" ]; then
+              circleci local execute -c .circleci/config.yml build_and_deploy-eventload
+            elif [ "$RUN_WORKFLOW" = "user-load" ]; then
+              circleci local execute -c .circleci/config.yml build_and_deploy-userload
+            fi
+
   deploy-userbackend-load:
     machine:
       enabled: true
     steps:
       - run:
           name: deploy-userbackend
-          command: ssh -o StrictHostKeyChecking=no ec2-user@139.16.67.74 './node-userbackend-ssh.sh';
+          command: ssh -o StrictHostKeyChecking=no ec2-user@16.16.67.74 './node-userbackend-ssh.sh';
         
 
   deploy-eventbackend-load:
@@ -22,7 +38,7 @@ jobs:
     steps:
       - run:
           name: deploy-eventbackend
-          command: ssh -o StrictHostKeyChecking=no ec2-user@139.16.67.74 './node-eventbackend-ssh.sh';
+          command: ssh -o StrictHostKeyChecking=no ec2-user@16.16.67.74 './node-eventbackend-ssh.sh';
 
 
   deploy-servicebackend-load:
@@ -31,67 +47,15 @@ jobs:
     steps:
       - run:
           name: deploy-servicebackend
-          command: ssh -o StrictHostKeyChecking=no ec2-user@139.16.67.74 './node-servicebackend-ssh.sh';
+          command: ssh -o StrictHostKeyChecking=no ec2-user@16.16.67.74 './node-servicebackend-ssh.sh';
   
 
-
-
 version: 2.1
-jobs:
- workflows:
-  build_and_deploy-serviceload:
-    jobs:
-      - aws-ecr/build-and-push-image:
-          account-url: AWS_ECR_URL_DEV
-          aws-access-key-id: AWS_DEV_ACCESS_KEY
-          aws-secret-access-key: AWS_DEV_SECRET_KEY
-          create-repo: true
-          dockerfile: Env/Load/ServiceDockerfile
-          no-output-timeout: 20m
-          path: .
-          region: AWS_REGION_load
-          repo: loadtesting-service-backend
-          skip-when-tags-exist: false
-          tag: 'latest,0.1$CIRCLE_BUILD_NUM'
-          filters:
-            branches:
-              only: feature/LoadTestEnhancement
-      - deploy-servicebackend-load:
-          requires:
-            - aws-ecr/build-and-push-image
-          filters:
-            branches:
-              only: feature/LoadTestEnhancement
-                         
-
-  build_and_deploy-eventload:
-    jobs:
-      - aws-ecr/build-and-push-image:
-          account-url: AWS_ECR_URL_DEV
-          aws-access-key-id: AWS_DEV_ACCESS_KEY
-          aws-secret-access-key: AWS_DEV_SECRET_KEY
-          create-repo: true
-          dockerfile: Env/Load/EventDockerfile
-          no-output-timeout: 20m
-          path: .
-          region: AWS_REGION_load
-          repo: loadtesting-event-backend
-          skip-when-tags-exist: false
-          tag: 'latest,0.1$CIRCLE_BUILD_NUM'
-          filters:
-            branches:
-              only: feature/LoadTestEnhancement
-      - deploy-eventbackend-load:
-          requires:
-            - aws-ecr/build-and-push-image
-          filters:
-            branches:
-              only: feature/LoadTestEnhancement
-              
-              
+workflows:
   build_and_deploy-userload:
     jobs:
       - aws-ecr/build-and-push-image:
+          name: Build-And-Push-Image
           account-url: AWS_ECR_URL_DEV
           aws-access-key-id: AWS_DEV_ACCESS_KEY
           aws-secret-access-key: AWS_DEV_SECRET_KEY
@@ -106,20 +70,83 @@ jobs:
           filters:
             branches:
               only: feature/LoadTestEnhancement
+          requires:
+            - Deployment-approval
+      - Deployment-approval:
+           type: approval
+           filters:
+             branches:
+               only: feature/LoadTestEnhancement
       - deploy-userbackend-load:
           requires:
-            - aws-ecr/build-and-push-image
+            - Build-And-Push-Image
+          filters:
+            branches:
+              only: feature/LoadTestEnhancement
+                         
+
+  build_and_deploy-eventload:
+    jobs:
+      - aws-ecr/build-and-push-image:
+          name: Build-And-Push-Image
+          account-url: AWS_ECR_URL_DEV
+          aws-access-key-id: AWS_DEV_ACCESS_KEY
+          aws-secret-access-key: AWS_DEV_SECRET_KEY
+          create-repo: true
+          dockerfile: Env/Load/EventDockerfile
+          no-output-timeout: 20m
+          path: .
+          region: AWS_REGION_load
+          repo: loadtesting-event-backend
+          skip-when-tags-exist: false
+          tag: 'latest,0.1$CIRCLE_BUILD_NUM'
+          filters:
+            branches:
+              only: feature/LoadTestEnhancement
+          requires:
+            - Deployment-approval
+      - Deployment-approval:
+           type: approval
+           filters:
+             branches:
+               only: feature/LoadTestEnhancement
+      - deploy-eventbackend-load:
+          requires:
+            - Build-And-Push-Image
           filters:
             branches:
               only: feature/LoadTestEnhancement
 
- workflows:
-  build_and_deploy_Sequentially:
+
+  build_and_deploy-serviceload:
     jobs:
-      - build_and_deploy-serviceload
-      - build_and_deploy-eventload:
+      - aws-ecr/build-and-push-image:
+          name: Build-And-Push-Image
+          account-url: AWS_ECR_URL_DEV
+          aws-access-key-id: AWS_DEV_ACCESS_KEY
+          aws-secret-access-key: AWS_DEV_SECRET_KEY
+          create-repo: true
+          dockerfile: Env/Load/ServiceDockerfile
+          no-output-timeout: 20m
+          path: .
+          region: AWS_REGION_load
+          repo: loadtesting-service-backend
+          skip-when-tags-exist: false
+          tag: 'latest,0.1$CIRCLE_BUILD_NUM'
+          filters:
+            branches:
+              only: feature/LoadTestEnhancement
           requires:
-            - build_and_deploy-serviceload
-      - build_and_deploy-userload:
+            - Deployment-approval
+      - Deployment-approval:
+           type: approval
+           filters:
+             branches:
+               only: feature/LoadTestEnhancement
+      - deploy-servicebackend-load:
           requires:
-            - build_and_deploy-eventload
+            - Build-And-Push-Image
+          filters:
+            branches:
+              only: feature/LoadTestEnhancement
+  
