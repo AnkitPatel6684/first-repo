@@ -8,21 +8,6 @@ orbs:
 
 jobs:
 
-  decide-workflow:
-    machine:
-      enabled: true
-    steps:
-      - run:
-          name: Decide-Workflow
-          command: |
-            if [ "$RUN_WORKFLOW" = "service-load" ]; then
-              circleci local execute -c .circleci/config.yml build_and_deploy-serviceload-US
-            elif [ "$RUN_WORKFLOW" = "event-load" ]; then
-              circleci local execute -c .circleci/config.yml build_and_deploy-eventload-US
-            elif [ "$RUN_WORKFLOW" = "user-load" ]; then
-              circleci local execute -c .circleci/config.yml build_and_deploy-userload-US
-            fi
-
   deploy-userbackend-load-US:
     machine:
       enabled: true
@@ -79,6 +64,104 @@ jobs:
 
 version: 2.1
 workflows:
+  build_and_deploy-userload-EU:
+    jobs:
+      - aws-ecr/build-and-push-image:
+          name: Build-And-Push-Image
+          account-url: AWS_ECR_URL_DEV
+          aws-access-key-id: AWS_DEV_ACCESS_KEY
+          aws-secret-access-key: AWS_DEV_SECRET_KEY
+          create-repo: true
+          dockerfile: Dockerfile
+          no-output-timeout: 20m
+          path: .
+          region: AWS_REGION_load
+          repo: testing-repo
+          skip-when-tags-exist: false
+          tag: 'latest,0.1$CIRCLE_BUILD_NUM'
+          filters:
+            branches:
+              only: circleci-project-setup
+          requires:
+            - Deployment-approval
+      - Deployment-approval:
+           type: approval
+           filters:
+             branches:
+               only: circleci-project-setup
+      - deploy-userbackend-load-EU:
+          requires:
+            - Build-And-Push-Image
+          filters:
+            branches:
+              only: circleci-project-setup
+                         
+
+  build_and_deploy-eventload-EU:
+    jobs:
+      - aws-ecr/build-and-push-image:
+          name: Build-And-Push-Image
+          account-url: AWS_ECR_URL_DEV
+          aws-access-key-id: AWS_DEV_ACCESS_KEY
+          aws-secret-access-key: AWS_DEV_SECRET_KEY
+          create-repo: true
+          dockerfile: Dockerfile
+          no-output-timeout: 20m
+          path: .
+          region: AWS_REGION_load
+          repo: testing-repo
+          skip-when-tags-exist: false
+          tag: 'latest,0.1$CIRCLE_BUILD_NUM'
+          filters:
+            branches:
+              only: circleci-project-setup
+          requires:
+            - Deployment-approval
+      - Deployment-approval:
+           type: approval
+           filters:
+             branches:
+               only: circleci-project-setup
+      - deploy-eventbackend-load-EU:
+          requires:
+            - Build-And-Push-Image
+          filters:
+            branches:
+              only: circleci-project-setup
+
+
+  build_and_deploy-serviceload-EU:
+    jobs:
+      - aws-ecr/build-and-push-image:
+          name: Build-And-Push-Image
+          account-url: AWS_ECR_URL_DEV
+          aws-access-key-id: AWS_DEV_ACCESS_KEY
+          aws-secret-access-key: AWS_DEV_SECRET_KEY
+          create-repo: true
+          dockerfile: Dockerfile
+          no-output-timeout: 20m
+          path: .
+          region: AWS_REGION_load
+          repo: testing-repo
+          skip-when-tags-exist: false
+          tag: 'latest,0.1$CIRCLE_BUILD_NUM'
+          filters:
+            branches:
+              only: circleci-project-setup
+          requires:
+            - Deployment-approval
+      - Deployment-approval:
+           type: approval
+           filters:
+             branches:
+               only: circleci-project-setup
+      - deploy-servicebackend-load-EU:
+          requires:
+            - Build-And-Push-Image
+          filters:
+            branches:
+              only: circleci-project-setup
+
   build_and_deploy-userload-US:
     jobs:
       - aws-ecr/build-and-push-image:
@@ -178,101 +261,6 @@ workflows:
               only: circleci-project-setup
 
 
-  build_and_deploy-userload-EU:
-    jobs:
-      - aws-ecr/build-and-push-image:
-          name: Build-And-Push-Image
-          account-url: AWS_ECR_URL_DEV
-          aws-access-key-id: AWS_DEV_ACCESS_KEY
-          aws-secret-access-key: AWS_DEV_SECRET_KEY
-          create-repo: true
-          dockerfile: Dockerfile
-          no-output-timeout: 20m
-          path: .
-          region: AWS_REGION_load
-          repo: testing-repo
-          skip-when-tags-exist: false
-          tag: 'latest,0.1$CIRCLE_BUILD_NUM'
-          filters:
-            branches:
-              only: circleci-project-setup
-          requires:
-            - Deployment-approval
-      - Deployment-approval:
-           type: approval
-           filters:
-             branches:
-               only: circleci-project-setup
-      - deploy-userbackend-load-EU:
-          requires:
-            - Build-And-Push-Image
-          filters:
-            branches:
-              only: circleci-project-setup
-                         
 
-  build_and_deploy-eventload-EU:
-    jobs:
-      - aws-ecr/build-and-push-image:
-          name: Build-And-Push-Image
-          account-url: AWS_ECR_URL_DEV
-          aws-access-key-id: AWS_DEV_ACCESS_KEY
-          aws-secret-access-key: AWS_DEV_SECRET_KEY
-          create-repo: true
-          dockerfile: Dockerfile
-          no-output-timeout: 20m
-          path: .
-          region: AWS_REGION_load
-          repo: testing-repo
-          skip-when-tags-exist: false
-          tag: 'latest,0.1$CIRCLE_BUILD_NUM'
-          filters:
-            branches:
-              only: circleci-project-setup
-          requires:
-            - Deployment-approval
-      - Deployment-approval:
-           type: approval
-           filters:
-             branches:
-               only: circleci-project-setup
-      - deploy-eventbackend-load-EU:
-          requires:
-            - Build-And-Push-Image
-          filters:
-            branches:
-              only: circleci-project-setup
-
-
-  build_and_deploy-serviceload-EU:
-    jobs:
-      - aws-ecr/build-and-push-image:
-          name: Build-And-Push-Image
-          account-url: AWS_ECR_URL_DEV
-          aws-access-key-id: AWS_DEV_ACCESS_KEY
-          aws-secret-access-key: AWS_DEV_SECRET_KEY
-          create-repo: true
-          dockerfile: Dockerfile
-          no-output-timeout: 20m
-          path: .
-          region: AWS_REGION_load
-          repo: testing-repo
-          skip-when-tags-exist: false
-          tag: 'latest,0.1$CIRCLE_BUILD_NUM'
-          filters:
-            branches:
-              only: circleci-project-setup
-          requires:
-            - Deployment-approval
-      - Deployment-approval:
-           type: approval
-           filters:
-             branches:
-               only: circleci-project-setup
-      - deploy-servicebackend-load-EU:
-          requires:
-            - Build-And-Push-Image
-          filters:
-            branches:
-              only: circleci-project-setup
   
+
