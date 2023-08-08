@@ -16,43 +16,70 @@ jobs:
           name: Decide-Workflow
           command: |
             if [ "$RUN_WORKFLOW" = "service-load" ]; then
-              circleci local execute -c .circleci/config.yml build_and_deploy-serviceload
+              circleci local execute -c .circleci/config.yml build_and_deploy-serviceload-US
             elif [ "$RUN_WORKFLOW" = "event-load" ]; then
-              circleci local execute -c .circleci/config.yml build_and_deploy-eventload
+              circleci local execute -c .circleci/config.yml build_and_deploy-eventload-US
             elif [ "$RUN_WORKFLOW" = "user-load" ]; then
-              circleci local execute -c .circleci/config.yml build_and_deploy-userload
+              circleci local execute -c .circleci/config.yml build_and_deploy-userload-US
             fi
 
-  deploy-userbackend-load:
+  deploy-userbackend-load-US:
     machine:
       enabled: true
     steps:
       - run:
           name: deploy-userbackend
-          command: ssh -o StrictHostKeyChecking=no ec2-user@16.16.67.74 './node-userbackend-ssh.sh';
+          command: ssh -o StrictHostKeyChecking=no ec2-user@13.51.238.191 './node-userbackend-us-ssh.sh';
         
 
-  deploy-eventbackend-load:
+  deploy-eventbackend-load-US:
     machine:
       enabled: true
     steps:
       - run:
           name: deploy-eventbackend
-          command: ssh -o StrictHostKeyChecking=no ec2-user@16.16.67.74 './node-eventbackend-ssh.sh';
+          command: ssh -o StrictHostKeyChecking=no ec2-user@13.51.238.191 './node-eventbackend-us-ssh.sh';
 
 
-  deploy-servicebackend-load:
+  deploy-servicebackend-load-US:
     machine:
       enabled: true
     steps:
       - run:
           name: deploy-servicebackend
-          command: ssh -o StrictHostKeyChecking=no ec2-user@16.16.67.74 './node-servicebackend-ssh.sh';
+          command: ssh -o StrictHostKeyChecking=no ec2-user@13.51.238.191 './node-servicebackend-us-ssh.sh';
+
+
+  deploy-userbackend-load-EU:
+    machine:
+      enabled: true
+    steps:
+      - run:
+          name: deploy-userbackend
+          command: ssh -o StrictHostKeyChecking=no ec2-user@13.51.238.191 './node-userbackend-eu-ssh.sh';
+        
+
+  deploy-eventbackend-load-EU:
+    machine:
+      enabled: true
+    steps:
+      - run:
+          name: deploy-eventbackend
+          command: ssh -o StrictHostKeyChecking=no ec2-user@13.51.238.191 './node-eventbackend-eu-ssh.sh';
+
+
+  deploy-servicebackend-load-EU:
+    machine:
+      enabled: true
+    steps:
+      - run:
+          name: deploy-servicebackend
+          command: ssh -o StrictHostKeyChecking=no ec2-user@13.51.238.191 './node-servicebackend-eu-ssh.sh';
   
 
 version: 2.1
 workflows:
-  build_and_deploy-userload:
+  build_and_deploy-userload-US:
     jobs:
       - aws-ecr/build-and-push-image:
           name: Build-And-Push-Image
@@ -60,32 +87,32 @@ workflows:
           aws-access-key-id: AWS_DEV_ACCESS_KEY
           aws-secret-access-key: AWS_DEV_SECRET_KEY
           create-repo: true
-          dockerfile: Env/Load/UserDockerfile
+          dockerfile: Dockerfile
           no-output-timeout: 20m
           path: .
           region: AWS_REGION_load
-          repo: loadtesting-user-backend
+          repo: testing-repo
           skip-when-tags-exist: false
           tag: 'latest,0.1$CIRCLE_BUILD_NUM'
           filters:
             branches:
-              only: feature/LoadTestEnhancement
+              only: circleci-project-setup
           requires:
             - Deployment-approval
       - Deployment-approval:
            type: approval
            filters:
              branches:
-               only: feature/LoadTestEnhancement
-      - deploy-userbackend-load:
+               only: circleci-project-setup
+      - deploy-userbackend-load-US:
           requires:
             - Build-And-Push-Image
           filters:
             branches:
-              only: feature/LoadTestEnhancement
+              only: circleci-project-setup
                          
 
-  build_and_deploy-eventload:
+  build_and_deploy-eventload-US:
     jobs:
       - aws-ecr/build-and-push-image:
           name: Build-And-Push-Image
@@ -93,32 +120,32 @@ workflows:
           aws-access-key-id: AWS_DEV_ACCESS_KEY
           aws-secret-access-key: AWS_DEV_SECRET_KEY
           create-repo: true
-          dockerfile: Env/Load/EventDockerfile
+          dockerfile: Dockerfile
           no-output-timeout: 20m
           path: .
           region: AWS_REGION_load
-          repo: loadtesting-event-backend
+          repo: testing-repo
           skip-when-tags-exist: false
           tag: 'latest,0.1$CIRCLE_BUILD_NUM'
           filters:
             branches:
-              only: feature/LoadTestEnhancement
+              only: circleci-project-setup
           requires:
             - Deployment-approval
       - Deployment-approval:
            type: approval
            filters:
              branches:
-               only: feature/LoadTestEnhancement
-      - deploy-eventbackend-load:
+               only: circleci-project-setup
+      - deploy-eventbackend-load-US:
           requires:
             - Build-And-Push-Image
           filters:
             branches:
-              only: feature/LoadTestEnhancement
+              only: circleci-project-setup
 
 
-  build_and_deploy-serviceload:
+  build_and_deploy-serviceload-US:
     jobs:
       - aws-ecr/build-and-push-image:
           name: Build-And-Push-Image
@@ -126,27 +153,126 @@ workflows:
           aws-access-key-id: AWS_DEV_ACCESS_KEY
           aws-secret-access-key: AWS_DEV_SECRET_KEY
           create-repo: true
-          dockerfile: Env/Load/ServiceDockerfile
+          dockerfile: Dockerfile
           no-output-timeout: 20m
           path: .
           region: AWS_REGION_load
-          repo: loadtesting-service-backend
+          repo: testing-repo
           skip-when-tags-exist: false
           tag: 'latest,0.1$CIRCLE_BUILD_NUM'
           filters:
             branches:
-              only: feature/LoadTestEnhancement
+              only: circleci-project-setup
           requires:
             - Deployment-approval
       - Deployment-approval:
            type: approval
            filters:
              branches:
-               only: feature/LoadTestEnhancement
-      - deploy-servicebackend-load:
+               only: circleci-project-setup
+      - deploy-servicebackend-load-US:
           requires:
             - Build-And-Push-Image
           filters:
             branches:
-              only: feature/LoadTestEnhancement
+              only: circleci-project-setup
+
+
+  build_and_deploy-userload-EU:
+    jobs:
+      - aws-ecr/build-and-push-image:
+          name: Build-And-Push-Image
+          account-url: AWS_ECR_URL_DEV
+          aws-access-key-id: AWS_DEV_ACCESS_KEY
+          aws-secret-access-key: AWS_DEV_SECRET_KEY
+          create-repo: true
+          dockerfile: Dockerfile
+          no-output-timeout: 20m
+          path: .
+          region: AWS_REGION_load
+          repo: testing-repo
+          skip-when-tags-exist: false
+          tag: 'latest,0.1$CIRCLE_BUILD_NUM'
+          filters:
+            branches:
+              only: circleci-project-setup
+          requires:
+            - Deployment-approval
+      - Deployment-approval:
+           type: approval
+           filters:
+             branches:
+               only: circleci-project-setup
+      - deploy-userbackend-load-EU:
+          requires:
+            - Build-And-Push-Image
+          filters:
+            branches:
+              only: circleci-project-setup
+                         
+
+  build_and_deploy-eventload-EU:
+    jobs:
+      - aws-ecr/build-and-push-image:
+          name: Build-And-Push-Image
+          account-url: AWS_ECR_URL_DEV
+          aws-access-key-id: AWS_DEV_ACCESS_KEY
+          aws-secret-access-key: AWS_DEV_SECRET_KEY
+          create-repo: true
+          dockerfile: Dockerfile
+          no-output-timeout: 20m
+          path: .
+          region: AWS_REGION_load
+          repo: testing-repo
+          skip-when-tags-exist: false
+          tag: 'latest,0.1$CIRCLE_BUILD_NUM'
+          filters:
+            branches:
+              only: circleci-project-setup
+          requires:
+            - Deployment-approval
+      - Deployment-approval:
+           type: approval
+           filters:
+             branches:
+               only: circleci-project-setup
+      - deploy-eventbackend-load-EU:
+          requires:
+            - Build-And-Push-Image
+          filters:
+            branches:
+              only: circleci-project-setup
+
+
+  build_and_deploy-serviceload-EU:
+    jobs:
+      - aws-ecr/build-and-push-image:
+          name: Build-And-Push-Image
+          account-url: AWS_ECR_URL_DEV
+          aws-access-key-id: AWS_DEV_ACCESS_KEY
+          aws-secret-access-key: AWS_DEV_SECRET_KEY
+          create-repo: true
+          dockerfile: Dockerfile
+          no-output-timeout: 20m
+          path: .
+          region: AWS_REGION_load
+          repo: testing-repo
+          skip-when-tags-exist: false
+          tag: 'latest,0.1$CIRCLE_BUILD_NUM'
+          filters:
+            branches:
+              only: circleci-project-setup
+          requires:
+            - Deployment-approval
+      - Deployment-approval:
+           type: approval
+           filters:
+             branches:
+               only: circleci-project-setup
+      - deploy-servicebackend-load-EU:
+          requires:
+            - Build-And-Push-Image
+          filters:
+            branches:
+              only: circleci-project-setup
   
