@@ -111,6 +111,7 @@ workflows:
               only: circleci-project-setup
           requires:
             - Deployment-approval
+            - queue/block_workflow
       - Deployment-approval:
            type: approval
            filters:
@@ -147,6 +148,7 @@ workflows:
               only: circleci-project-setup
           requires:
             - Deployment-approval
+            - queue/block_workflow
       - Deployment-approval:
            type: approval
            filters:
@@ -183,6 +185,7 @@ workflows:
               only: circleci-project-setup
           requires:
             - Deployment-approval
+            - queue/block_workflow
       - Deployment-approval:
            type: approval
            filters:
@@ -218,6 +221,7 @@ workflows:
               only: circleci-project-setup
           requires:
             - Deployment-approval
+            - queue/block_workflow
       - Deployment-approval:
            type: approval
            filters:
@@ -254,6 +258,7 @@ workflows:
               only: circleci-project-setup
           requires:
             - Deployment-approval
+            - queue/block_workflow
       - Deployment-approval:
            type: approval
            filters:
@@ -290,6 +295,7 @@ workflows:
               only: circleci-project-setup
           requires:
             - Deployment-approval
+            - queue/block_workflow
       - Deployment-approval:
            type: approval
            filters:
