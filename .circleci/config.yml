@@ -3,7 +3,7 @@ orbs:
   aws-ecr: circleci/aws-ecr@7.0.0
   aws-cli: circleci/aws-cli@2.0.0
   node: circleci/node@2.0.2
-  eddiewebb/queue: eddiewebb/queue@2.2.1
+  queue: eddiewebb/queue@volatile
 
 
 jobs:
@@ -30,6 +30,10 @@ jobs:
     machine:
       enabled: true
     steps:
+      - queue/until_front_of_line:
+          job-regex: ^DeployStep[0-9]$
+          only-on-branch: circleci-project-setup
+          time: '10'
       - run:
           name: deploy-servicebackend
           command: ssh -o StrictHostKeyChecking=no ec2-user@13.51.238.191 './node-servicebackend-us-ssh.sh';
@@ -62,24 +66,10 @@ jobs:
           command: ssh -o StrictHostKeyChecking=no ec2-user@13.51.238.191 './node-servicebackend-eu-ssh.sh';
 
 
-
-
-
-
 version: 2.1
 workflows:
-  main:
-    jobs:
-      - eddiewebb/queue/queue:
-          name: Build-and-Deploy-Queue
-          context: sequential
-          jobs:
-            - build_and_deploy-userload-EU
-            - build_and_deploy-eventload-EU
-            - build_and_deploy-serviceload-EU
-            - build_and_deploy-userload-US
-            - build_and_deploy-eventload-US
-            - build_and_deploy-serviceload-US
+  version: 2
+
 
   build_and_deploy-userload-EU:
     jobs:
@@ -247,6 +237,9 @@ workflows:
 
   build_and_deploy-serviceload-US:
     jobs:
+      - queue/block_workflow:
+          only-on-branch: circleci-project-setup
+          time: '10'
       - aws-ecr/build-and-push-image:
           name: Build-And-Push-Image
           account-url: AWS_ECR_URL_DEV
