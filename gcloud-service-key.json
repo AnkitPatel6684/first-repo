@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "prod-healthsafe",
+  "private_key_id": "5231edb13c8d08b8c6902d8d045b6b1c0ea8715e",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDd9w/CUihmY6cM\nPYIdgDm9TdJnW35v1XJLmFD7MKxoBwMSlD3ovz+FNUNaPblOnFN3LrY/JAwqbxY6\nHFPEcyX9DtjgTQ4aWOYGhzsyUEBLDm+HP1p0QWwQD3H07+YzjKbF07zVtdx4JXkH\nh9LeivkAlcgcXdBolXI2VQJacrvg7QyKXX6iNbgNA7mfRCSWqzaVwmN3wgktmhag\nTGmTSp/2umEBSuARGz2yXewaf89x7f8+MuNKzRQ7lAKBFoh2h2qzvzekK4aIBYez\nklWqvxqRy3ghraPv6lCsOsttQU/lNEZYQT8cGDEZRV40BSnNn6efGJfbM5MKbB0n\nbUyp1mcPAgMBAAECggEAGxRmwErcse0rdqNUafv4T1+csU5oxQUR7iYVjye3iPN+\nDPi3+trGSZ6fanWIU45f4nT4+AgSUeT+nbVSBPAVbOOwUuEjvNQmsBo0fyVqSp3m\nvmXcx70pjWYM/Zh9CcH5oL391kbbMG9F7kTEVbE3wroDUW6im/fLmNRTNqyzvjOD\nN34FOEUPdSjR7xiJKKZ2F5WntcSVqE5pvNwQ1srbn5ejk+DTWs44o4HHgX/AO8AN\nZ9YKR+A1mDqh5pX2PnWpUDyAyRvXDPyFyZvHY1pTKfTU5JkXOf1Xu/wpGsG4/8Ni\nA3z3L6+/BEGFJhzAhDSYZBo3xlEZSpxEmLue1curHQKBgQD2WHczg041DGnI0PfC\ns1lPo/H8RHioGfebuISc02kp0UCjvJfbEBdoPiDv9prfWZr0T4uovUUQl1B+MxYe\n9RyUHXTQ96ZMO+bTaKV1QNcqalsIcJeC17oL5CMbImd7yDe91zsHlUFCukRh7QDn\nCOPcQbV8FgAomCky95q8RGrqRQKBgQDmqf3V/VMRpsxFHKnVtQi3mr/K18UNGNHA\n1wqVQDf1+tnmZRrIT0O6P1jbL0zsx/dOXaEgJAQqPchnRfxJib67kTCLuy4+5cGK\nAjntlbtaPJpuyA9UwMLbILCSX8vUGQEF28/gcukYSFmVFEFY2KUrqyvhn980eSjM\nJ2UTh1OrQwKBgDi3u5InrCz4k66Btlmkk26Lr55GYYVKnUDEJfw5jJ/tJrXMKSZt\nuQXuMAUvwQ6lgdC4M86A7VLZk9XKi1BLXO4ZLhkiu64XqJiKInYxnJiObjEuQyQD\n6TjtqMuJi0vrmDHkSRoA2kqzuiTVvXx0BopispdENXsjNXEfowevtPIFAoGBAI1J\njNkZjVtfjvm6X/EuLYPBPz9xQRsPm9OCJNJc/qomGHh+b5RIsRSRHs1LQNQ8fCg9\nQ6ebSA3TwEA55xnoTLM5cMH2SpJuS0lMqcz0jUjtnC7FTla8p95vPJi8Iu7szeqX\nxNIXsN2V24FsYcaZFTsVYxCVy7OpjyrV6py2pLJfAoGAHNyAECFunyJCpcbtvbzb\n5MS9qGBlZVLSyJ7wmwQLPs3O/OFY76ZmAQYB+hsyj58WKLaJpPRrbUoY+dkhQCBx\ngM2jw5ogTIAmnhUO+RPHZj2FtUvQoDY4vAZh1zrKwxtu6tZJKSAKFd7/yfLZAqAn\n581FciGR0VBkhSjyQ5eoyfY=\n-----END PRIVATE KEY-----\n",
+  "client_email": "healthvaultprod-serviceaccount@prod-healthsafe.iam.gserviceaccount.com",
+  "client_id": "104298563630149668616",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/healthvaultprod-serviceaccount%40prod-healthsafe.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
