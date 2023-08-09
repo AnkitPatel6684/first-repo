@@ -3,7 +3,7 @@ orbs:
   aws-ecr: circleci/aws-ecr@7.0.0
   aws-cli: circleci/aws-cli@2.0.0
   node: circleci/node@2.0.2
-
+  eddiewebb/queue: eddiewebb/queue@2.2.1
 
 
 jobs:
@@ -60,52 +60,26 @@ jobs:
       - run:
           name: deploy-servicebackend
           command: ssh -o StrictHostKeyChecking=no ec2-user@13.51.238.191 './node-servicebackend-eu-ssh.sh';
-  
-  trigger_us_workflows:
-    docker:
-      - image: circleci/cli:latest
-    steps:
-      - run:
-          name: Trigger US Workflows
-          command: |
-            circleci workflow trigger build_and_deploy-userload-US
-            circleci workflow trigger build_and_deploy-eventload-US
-            circleci workflow trigger build_and_deploy-serviceload-US
 
-  trigger_eu_workflows:
-    docker:
-      - image: circleci/cli:latest
-    steps:
-      - run:
-          name: Trigger EU Workflows
-          command: |
-            if [ "$US_WORKFLOWS_SUCCESS" == "true" ]; then
-              circleci workflow trigger build_and_deploy-userload-EU
-              circleci workflow trigger build_and_deploy-eventload-EU
-              circleci workflow trigger build_and_deploy-serviceload-EU
-            else
-              echo "US workflows have not succeeded. Skipping EU workflows."
-            fi
+
 
 
 
 
 version: 2.1
 workflows:
-  version: 2
-
-  control_workflow:
+  main:
     jobs:
-      - trigger_us_workflows:
-          filters:
-            branches:
-              only: circleci-project-setup
-      - trigger_eu_workflows:
-          requires:
-            - trigger_us_workflows
-          filters:
-            branches:
-              only: circleci-project-setup
+      - eddiewebb/queue/queue:
+          name: Build-and-Deploy-Queue
+          context: sequential
+          jobs:
+            - build_and_deploy-userload-EU
+            - build_and_deploy-eventload-EU
+            - build_and_deploy-serviceload-EU
+            - build_and_deploy-userload-US
+            - build_and_deploy-eventload-US
+            - build_and_deploy-serviceload-US
 
   build_and_deploy-userload-EU:
     jobs:
