@@ -1,1 +1,74 @@
-llll
+version: 2.1
+orbs:
+  node: circleci/node@5.1.0
+
+executor:
+  default:
+    docker:
+      - image: node:10
+
+jobs:
+  Build_Frontend:
+    docker:
+      - image: circleci/python:3.9
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build Docker Image 
+          command: |
+            docker build -t devops9182/innobit-inhouseprojects:pmsstaging-frontend .
+
+      - run:
+          name: Login to Docker Hub
+          command: |
+            docker login -u devops9182 -p rgbXYZ@9182
+            docker push devops9182/innobit-inhouseprojects:pmsstaging-frontend
+
+  Deploy_On_Staging_Server:
+    docker:
+      - image: ubuntu:latest
+    steps:
+      - run:
+          name: Install sshpass
+          command: |
+            apt-get update
+            apt-get install -y sshpass
+
+      - run:
+          name: SSH into PMS Server
+          command: | 
+            sshpass -p $SSH ssh -o StrictHostKeyChecking=no $INNOBITBASTIONUSER@$INNOBITSTAGING_IP "./Pms-staging-test.sh"
+            
+workflows:
+  version: 2.1
+  Build_And_Deploy_Frontend:
+    jobs:
+      - Build_Frontend:
+          requires: 
+              - Build-Image-approval
+          filters:
+            branches:
+              only:
+                - circleci-project-setup
+     
+      - Deploy_On_Staging_Server:
+          requires: 
+              - Build_Frontend
+              - Deployment-approval
+          filters:
+            branches:
+              only:
+                - circleci-project-setup
+              
+      - Build-Image-approval:
+           type: approval
+           filters:
+             branches:
+               only: circleci-project-setup
+               
+      - Deployment-approval:
+           type: approval
+           filters:
+             branches:
+               only: circleci-project-setup          
