@@ -17,13 +17,13 @@ jobs:
       - run:
           name: Build Docker Image 
           command: |
-            docker build -t devops9182/innobit-inhouseprojects:pmsstaging-frontend .
+            docker build -t devops9182/innobit-inhouseprojects:test-frontend .
 
       - run:
           name: Login to Docker Hub
           command: |
             docker login -u devops9182 -p rgbXYZ@9182
-            docker push devops9182/innobit-inhouseprojects:pmsstaging-frontend
+            docker push devops9182/innobit-inhouseprojects:test-frontend
 
   Deploy_On_Staging_Server:
     docker:
@@ -56,6 +56,8 @@ workflows:
        
       - Deployment-approval:
            type: approval
+           requires: 
+              - Build_Frontend
            filters:
              branches:
                only: circleci-project-setup    
