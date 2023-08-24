@@ -44,14 +44,7 @@ workflows:
   version: 2.1
   Build_And_Deploy_Frontend:
     jobs:
-      - Build_Frontend:
-          requires: 
-              - Build-Image-approval
-          filters:
-            branches:
-              only:
-                - circleci-project-setup
-     
+           
       - Deploy_On_Staging_Server:
           requires: 
               - Build_Frontend
@@ -60,15 +53,23 @@ workflows:
             branches:
               only:
                 - circleci-project-setup
-              
+       
+      - Deployment-approval:
+           type: approval
+           filters:
+             branches:
+               only: circleci-project-setup    
+
+      - Build_Frontend:
+          requires: 
+              - Build-Image-approval
+          filters:
+            branches:
+              only:
+                - circleci-project-setup      
+
       - Build-Image-approval:
            type: approval
            filters:
              branches:
                only: circleci-project-setup
-               
-      - Deployment-approval:
-           type: approval
-           filters:
-             branches:
-               only: circleci-project-setup          
