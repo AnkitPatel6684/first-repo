@@ -38,7 +38,7 @@ jobs:
       - run:
           name: SSH into PMS Server
           command: | 
-            sshpass -p $SSH ssh -o StrictHostKeyChecking=no $INNOBITBASTIONUSER@$INNOBITSTAGING_IP "./Pms-staging-test.sh"
+            sshpass -p $SSHPASS ssh -o StrictHostKeyChecking=no $INNOBITBASTIONUSER@$INNOBITBASTION_IP "./Pms-staging-test.sh"
             
 workflows:
   version: 2.1
