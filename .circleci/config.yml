@@ -26,7 +26,7 @@ workflows:
           tag: 'latest,0.1$CIRCLE_BUILD_NUM'
           filters:
             branches:
-              only: master
+              ignore: /.*/
             tags:
               only: /^v[0-9]+(\.[0-9]+)+(\.[0-9]+)/
 
@@ -34,7 +34,7 @@ workflows:
           type: approval
           filters:
             branches:
-              only: master
+              ignore: /.*/
             tags:
               only: /^v[0-9]+(\.[0-9]+)+(\.[0-9]+)/
 
