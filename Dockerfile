@@ -2,6 +2,7 @@ FROM ubuntu:latest
 
 # Create app directory
 WORKDIR /usr/app
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 871920D1991BC93C
 RUN apt-get update
 RUN apt-get install nodejs -y
 # Install app dependencies
