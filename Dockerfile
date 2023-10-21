@@ -1,11 +1,11 @@
-FROM ubuntu:latest
+FROM ubuntu:18.04
 
 # Create app directory
 WORKDIR /usr/app
 #RUN rm -rf /etc/apt/trusted.gpg.d/*
-RUN apt --fix-broken install
-RUN apt-get install gnupg -y
-RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 871920D1991BC93C
+#RUN apt --fix-broken install
+#RUN apt-get install gnupg -y
+#RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 871920D1991BC93C
 RUN apt-get update
 RUN apt-get install nodejs -y
 # Install app dependencies
