@@ -1,8 +1,9 @@
-FROM node:10
+FROM ubuntu:latest
 
 # Create app directory
 WORKDIR /usr/app
-
+RUN apt-get update
+RUN apt-get install nodejs -y
 # Install app dependencies
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
 # where available (npm@5+)
