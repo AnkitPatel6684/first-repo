@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM ubuntu:latest
 
 # Create app directory
 WORKDIR /usr/app
@@ -6,6 +6,8 @@ WORKDIR /usr/app
 #RUN apt --fix-broken install
 #RUN apt-get install gnupg -y
 #RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 871920D1991BC93C
+RUN sudo apt-get install debian-keyring debian-archive-keyring
+RUN sudo apt-key update
 RUN apt-get update
 RUN apt-get install nodejs -y
 # Install app dependencies
